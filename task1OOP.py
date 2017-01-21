@@ -53,12 +53,32 @@ class Oslo:
             self.slopes[0] += 1
             self.slopes, self.threshold = _relax(self.slopes, self.threshold, self.p)
             n_iter += 1
-            print n_iter
 
-a = Oslo(16)
-print a.get_height()
-a.add_grain(10000)
-print a.get_height()
-a.empty_model()
-a.add_grain(100)
-print a.get_height()
+
+def average_height(obj, num_grains_stdy_state=30000, sample_rate=100):
+    obj.empty_model()
+    height_list = []
+    # max_grains = num_grains_stdy_state + 100 * sample_rate
+    # for num_grains in np.arange(num_grains_stdy_state, max_grains + 1, sample_rate):
+    #     obj.add_grain(num_grains)
+    #     height_list.append(obj.get_height())
+    obj.add_grain(num_grains_stdy_state)
+    height_list.append(obj.get_height())
+    for i in range(10):
+        obj.add_grain(sample_rate)
+        height_list.append(obj.get_height())
+    av_height = np.sum(height_list)/len(height_list)
+    obj.empty_model()
+    return av_height
+
+
+# a = Oslo(16)
+# print a.get_height()
+# a.add_grain(10000)
+# print a.get_height()
+# a.empty_model()
+# a.add_grain(100)
+# print a.get_height()
+
+# a = Oslo(16)
+# print average_height(a)
