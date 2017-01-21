@@ -22,21 +22,31 @@ import numpy as np
 #     return slopes_list
 
 
+def random_generator(p):
+    """p is between 0 and 1, is the probability of getting a 1
+    1-p is the probability of getting 2"""
+    rand_number = np.random.random()
+    if rand_number > float(p):
+        return int(2)
+    else:
+        return int(1)
+
+
 def relax(slopes, threshold):
     while np.any(np.greater(slopes, threshold)):
-        for i in range(len(slopes)-1):
+        for i in range(len(slopes)):
             if slopes[i] > threshold[i]:
                 if i == 0:
                     slopes[i] -= 2
                     slopes[i+1] += 1
-                elif i == len(slopes) - 2:
+                elif i == len(slopes) - 1:
                     slopes[i] -= 1
                     slopes[i-1] += 1  # DOES THE ORDER MATTERS HERE?
                 else:
                     slopes[i] -= 2
                     slopes[i+1] += 1
                     slopes[i-1] += 1
-                threshold[i] = np.random.randint(1, 3)
+                threshold[i] = random_generator(0)
     return slopes, threshold
 
 
@@ -56,7 +66,7 @@ def oslo(size_L, itermax):
     sites = np.arange(1, size_L+1, dtype=int)
     # height = np.zeros(sites.size)
     slopes = np.zeros(sites.size, dtype=int)  # z_i = 0
-    threshold = np.random.randint(1, 3, sites.size)
+    threshold = np.ones(slopes.size) * random_generator(0)
     niter = 0
 
     # drive and relaxation
@@ -69,6 +79,6 @@ def oslo(size_L, itermax):
     print slopes
     return np.sum(slopes)
 
-print oslo(16,30000)
+print oslo(16,30001)
 
 
