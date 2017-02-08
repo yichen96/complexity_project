@@ -96,17 +96,71 @@ class Oslo:
         self.grain += num_grains
 
 
-def average_height(obj, num_grains_stdy_state=30000, sample_rate=1):
+def average_height(obj, averaged=200, num_grains_stdy_state=30000, sample_rate=1, empty=False):
     obj.empty_model()
-    height_list = []
-    obj.add_grain(num_grains_stdy_state)
-    height_list.append(obj.get_height())
-    for i in range(10):
+    height_list = np.zeros(averaged)
+    obj.add_grain(num_grains_stdy_state-sample_rate)
+    for i in range(averaged):
         obj.add_grain(sample_rate)
-        height_list.append(obj.get_height())
-    av_height = np.sum(height_list)/len(height_list)
-    obj.empty_model()
+        height_list[i] = obj.get_height()
+    av_height = np.sum(height_list)/height_list.size
+    if empty:
+        obj.empty_model()
     return av_height
+
+
+def stats_on_height(obj, averaged=3000, num_grains_stdy_state=30000, sample_rate=1, empty=False):
+    # obj.empty_model()
+    height_list = np.zeros(averaged)
+    height_dict = {}
+    obj.add_grain(num_grains_stdy_state - sample_rate)
+    for i in range(averaged):
+        obj.add_grain(sample_rate)
+        h = obj.height_1
+        height_list[i] = h
+        if h not in height_dict:
+            height_dict[h] = 1
+        else:
+            height_dict[h] += 1
+    av_height = np.sum(height_list) / float(height_list.size)
+    arr_keys = np.array(height_dict.keys())
+    arr_values = np.array(height_dict.values())
+    total = arr_keys * arr_values
+    # av_height = np.sum(total)/np.sum(arr_values)
+    av_h_squared = np.sum(height_list**2) / float(height_list.size)
+    # av_h_squared = np.sum(total ** 2) / averaged
+    std_dev = np.sqrt(av_h_squared - av_height**2)
+    print height_list
+    if empty:
+        obj.empty_model()
+    return av_height, std_dev, height_dict
+
+
+def proba_height(height_dict, h):
+    total_counts = np.sum(height_dict.values())
+    P = height_dict[h]/total_counts
+    return P
+
+def list_to_dict(alist):
+    a_dict = {}
+    for i in alist:
+        if i not in a_dict:
+            a_dict[i] = 1
+        else:
+            a_dict[i] += 1
+    return a_dict
+
+
+def create_oslo_obj(num):
+    Num = [8, 16, 32, 64, 128, 256, 512]  # change this list to scale with num
+    L = Num[0:int(num)]
+    obj_dict = {}
+    for i in range(len(L)):
+        obj_dict['%s' % L[i]] = Oslo(L[i])
+    return obj_dict
+
+
+
 
 if __name__ == "__main__":
     a = Oslo(16)
@@ -124,6 +178,13 @@ if __name__ == "__main__":
     print a.avalanches
     print a.t_c
     print a.grain
+    a_dict = list_to_dict(a.avalanches)
+    A = []
+    for key in a_dict.keys():
+        A.append(proba_height(a_dict, key))
+    print a_dict
+    # d,b,height_dict = stats_on_height(a)
+
 # a.empty_model()
 # a.add_grain(100)
 # print a.get_height()
