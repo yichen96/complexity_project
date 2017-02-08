@@ -145,7 +145,7 @@ def proba_height(height_dict, h):
 def generate_P(h_dict):
     P = []
     for key in h_dict.keys():
-        P.append(om.proba_height(h_dict,key))
+        P.append(proba_height(h_dict, key))
     return np.array(P)
 
 
