@@ -141,6 +141,14 @@ def proba_height(height_dict, h):
     P = height_dict[h]/total_counts
     return P
 
+
+def generate_P(h_dict):
+    P = []
+    for key in h_dict.keys():
+        P.append(om.proba_height(h_dict,key))
+    return np.array(P)
+
+
 def list_to_dict(alist):
     a_dict = {}
     for i in alist:
