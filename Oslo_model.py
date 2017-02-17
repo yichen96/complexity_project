@@ -44,8 +44,8 @@ class Oslo:
         self.slopes = np.zeros(self.sites.size, dtype=int)  # z_i = 0
         self.threshold = np.ones(self.slopes.size) * random_generator(self.p)
         self.height_1 = 0  # height at first site i = 1 we only keep track the change in h
-        self.avalanches = 0
-        self.t_c = 0
+        self.avalanches = None
+        self.t_c = None
         self.grain = 0
 
     def get_height(self):
@@ -55,7 +55,7 @@ class Oslo:
         self.slopes = np.zeros(self.sites.size, dtype=int)  # z_i = 0
         self.threshold = np.ones(self.slopes.size) * random_generator(self.p)
         self.height_1 = 0
-        self.avalanches = 0
+        self.avalanches = None
         self.grain = 0
 
     def add_grain(self, num_grains):
@@ -79,7 +79,7 @@ class Oslo:
                             self.slopes[i] -= 1
                             self.slopes[i - 1] += 1
                             avalanche_counter += 1
-                            if self.t_c is 0:
+                            if self.t_c is None:
                                 self.t_c = self.grain + n_iter
                         else:
                             self.slopes[i] -= 2
@@ -89,7 +89,7 @@ class Oslo:
                         self.threshold[i] = random_generator(self.p)
             avalanche[n_iter] = avalanche_counter
             n_iter += 1
-        if self.avalanches is 0:
+        if self.avalanches is None:
             self.avalanches = avalanche
         else:
             self.avalanches = np.concatenate((self.avalanches, avalanche))
@@ -109,7 +109,7 @@ def average_height(obj, averaged=200, num_grains_stdy_state=30000, sample_rate=1
     return av_height
 
 
-def stats_on_height(obj, averaged=3000, num_grains_stdy_state=30000, sample_rate=1, empty=False):
+def stats_on_height(obj, averaged=30000, num_grains_stdy_state=30000, sample_rate=1, empty=False):
     # obj.empty_model()
     height_list = np.zeros(averaged)
     height_dict = {}
@@ -130,7 +130,6 @@ def stats_on_height(obj, averaged=3000, num_grains_stdy_state=30000, sample_rate
     av_h_squared = np.sum(height_list**2) / float(height_list.size)
     # av_h_squared = np.sum(total ** 2) / averaged
     std_dev = np.sqrt(av_h_squared - av_height**2)
-    print height_list
     if empty:
         obj.empty_model()
     return av_height, std_dev, height_dict
@@ -144,9 +143,9 @@ def proba_height(height_dict, h):
 
 def generate_P(h_dict):
     P = []
-    for key in h_dict.keys():
+    for key in sorted(h_dict.keys()):
         P.append(proba_height(h_dict, key))
-    return np.array(P)
+    return P
 
 
 def list_to_dict(alist):
@@ -159,12 +158,12 @@ def list_to_dict(alist):
     return a_dict
 
 
-def create_oslo_obj(num):
-    Num = [8, 16, 32, 64, 128, 256, 512]  # change this list to scale with num
-    L = Num[0:int(num)]
+def create_oslo_obj(stop, start=0):
+    List = [8, 16, 32, 64, 128, 256, 512]  # change this list to scale with num
+    L = List[int(start):int(stop)]
     obj_dict = {}
     for i in range(len(L)):
-        obj_dict['%s' % L[i]] = Oslo(L[i])
+        obj_dict[int(L[i])] = Oslo(int(L[i]))
     return obj_dict
 
 

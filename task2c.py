@@ -18,7 +18,7 @@ L_list = np.array([8, 16, 32, 64, 128, 256])
 stdlist = np.array([std1, std2, std3, std4, std5, std6])
 print avlist
 print L_list
-slope_h, intercept_h, r_value_h, p_value_h, std_err_h = stats.linregress(L_list, avlist/L_list)
+slope_h, intercept_h, r_value_h, p_value_h, std_err_h = stats.linregress(L_list, avlist)
 print intercept_h
 
 loglistav = np.log(avlist/L_list)
